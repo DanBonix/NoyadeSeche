@@ -1,0 +1,153 @@
+import datetime
+
+'''
+Fonction qui vérifie la validité de la date saisie par l'utilisateur
+Cela permet d'éviter des valeurs telles que un 13ème mois, 30 ou 31 pour le mois de Février, mais aussi une année, un mois ou un jour dont la longueur serait différente de celle demandée
+Toutes ces valeurs feront que le return de la fonction passera de True à False
+'''
+
+
+def verificationDate(date):
+    format = '%d/%m/%Y'
+    try:
+        datetime.datetime.strptime(date, format)
+    except ValueError:
+        print('%s n\'est pas une date valide !' % date)
+        return False
+    return True
+
+
+'''
+Fonction qui détermine si l'année reçue en paramètre est bissextile
+Si l'année est divisible par 4 (c'est-à-dire que le reste dans la division euclidienne par 4 est égal à 0) mais pas par 100 (reste différent de 0), l'année est bissextile
+Autrement (divisible par 4 et par 100), on poursuit : si il est divisible également par 400 (donc divisible par 4, 100 et 400), l'année est bissextile
+'''
+
+
+def estBissextile(annee):
+    bissextile = False
+
+    if annee % 4 == 0 and annee % 100 != 0:
+        bissextile = True
+    elif annee % 100 == 0 and annee % 400 == 0:
+        bissextile = True
+
+    return bissextile
+
+
+# print(estBissextile(2000))
+
+'''
+Fonction qui ajoute un chiffre compris entre 0 et 6 en fonction du mois saisi par l'utilisateur
+Ainsi, on ajoutera à notre calcul :
+0 pour Janvier et Octobre, 1 pour Mai, 2 pour Août, 3 pour Février, Mars et Novembre, 4 pour Juin, 5 pour Septembre et Décembre, 6 pour Avril et Juillet
+'''
+
+
+def mois(mois):
+    ajout = 0
+
+    if mois in [1, 10]:
+        ajout = 0
+    elif mois == 5:
+        ajout = 1
+    elif mois == 8:
+        ajout = 2
+    elif mois in [2, 3, 11]:
+        ajout = 3
+    elif mois == 6:
+        ajout = 4
+    elif mois in [9, 12]:
+        ajout = 5
+    elif mois in [4, 7]:
+        ajout = 6
+
+    return ajout
+
+
+'''
+Fonction qui ajoute un chiffre compris parmis les valeurs [0, 2, 4, 6] en fonction de l'année saisie par l'utilisateur
+Ainsi, on ajoutera à notre calcul :
+0 pour les années 1900, 2 pour les années 1800, 4 pour les années 1700 et 2100, 0 pour les années 1600 et 2000
+'''
+
+
+def siecle(annee):
+    ajout = 0
+
+    if annee in range(1900, 2000):
+        ajout = 0
+    elif annee in range(1800, 1900):
+        ajout = 2
+    elif annee in range(1700, 1800) or annee in range(2100, 2200):
+        ajout = 4
+    elif annee in range(1600, 1700) or annee in range(2000, 2100):
+        ajout = 6
+
+    return ajout
+
+
+'''
+Fonction qui calcule le résultat final du calcul, grâce aux fonctions précédentes, et que l'on interprêtera par la suite
+'''
+
+
+def calcul(uneDate):
+    dateSplit = uneDate.split('/')
+
+    ''' On garde les deux derniers chiffres de l'année en question '''
+    calc = int(dateSplit[2][2:4])
+    ''' On ajoute 1/4 de ce chiffre en ignorant les restes '''
+    calc += calc // 4
+    ''' On ajoute la journée du mois '''
+    calc += int(dateSplit[0])
+    ''' Selon le mois on ajoute 0, 1, 2, 3, 4, 5, 6 (cf. focntion mois(mois) '''
+    calc += mois(int(dateSplit[1]))
+    '''  Si l'année est bissextile et le mois est Janvier ou Février, on ôte 1  '''
+    if estBissextile(int(dateSplit[2])) and int(dateSplit[1] == 1) or int(dateSplit[1]) == 2:
+        calc -= 1
+    ''' Selon le siècle, on ajoute 0, 2, 4, 6 (cf. focntion siecle(annee)'''
+    calc += siecle(int(dateSplit[2]))
+    ''' Résultat final : reste dans la division euclidienne par 7'''
+    res = calc % 7
+
+    return res
+
+
+'''
+Fonction qui permet l'interprétation du résultat trouvé grâce à la focntion calcul(uneDate)
+Le résulat du calcul peut varier entre 0 et 6, chaque chiffre correspondant à un jour de la semaine, Dimance porte le 0
+'''
+
+
+def quelJour(calcul):
+    jour = 'jour'
+
+    if calcul == 0:
+        jour = 'Dimanche'
+    elif calcul == 1:
+        jour = 'Lundi'
+    elif calcul == 2:
+        jour = 'Mardi'
+    elif calcul == 3:
+        jour = 'Mercredi'
+    elif calcul == 4:
+        jour = 'Jeudi'
+    elif calcul == 5:
+        jour = 'Vendredi'
+    elif calcul == 6:
+        jour = 'Samedi'
+
+    return jour
+
+
+# print(mois(12))
+
+date = input('Entrez une date au format DD/MM/YYYY : ')
+dateSplit = date.split('/')
+''' Boucle qui réitère l'instruction tant que la saisie ne correspond pas au format requis dans verificationDate(date)
+OU que l'année saisie est inférieure à 1582, donc une année antérieure au calendrier grégorien'''
+while not verificationDate(date) or int(dateSplit[2]) < 1582:
+    date = input('Entrez une date au format DD/MM/YYYY : ')
+''' Affichage du résultat sous forme de phrase simple '''
+print('Le ' + dateSplit[0] + '/' + dateSplit[1] + '/' + dateSplit[2] + ' est un ' + quelJour(calcul(date)))
