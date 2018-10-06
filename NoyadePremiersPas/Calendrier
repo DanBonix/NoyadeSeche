@@ -140,14 +140,14 @@ def quelJour(calcul):
 
     return jour
 
-
-# print(mois(12))
-
 date = input('Entrez une date au format DD/MM/YYYY : ')
 dateSplit = date.split('/')
+
 ''' Boucle qui réitère l'instruction tant que la saisie ne correspond pas au format requis dans verificationDate(date)
 OU que l'année saisie est inférieure à 1582, donc une année antérieure au calendrier grégorien'''
+
 while not verificationDate(date) or int(dateSplit[2]) < 1582:
     date = input('Entrez une date au format DD/MM/YYYY : ')
+    
 ''' Affichage du résultat sous forme de phrase simple '''
 print('Le ' + dateSplit[0] + '/' + dateSplit[1] + '/' + dateSplit[2] + ' est un ' + quelJour(calcul(date)))
